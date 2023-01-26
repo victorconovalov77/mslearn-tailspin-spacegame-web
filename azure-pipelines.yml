@@ -45,6 +45,50 @@ steps:
     arguments: '--no-restore --configuration $(buildConfiguration)'
     projects: '**/*.csproj'
 
+- task: UseNode@1
+  inputs:
+    versionSpec: '10.x'
+
+- script: echo Installing Scanner.
+  displayName: 'Install Scanner'
+
+- script: |
+    sudo mkdir /opt/sonar
+    cd /opt/sonar
+    sudo wget -O sonarscanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.4.0.2170-linux.zip
+    sudo unzip sonarscanner.zip
+    sudo cd sonar-scanner-4.4.0.2170-linux/bin
+    sudo ./sonar-scanner -Dsonar.projectKey="$(ProjectName)" -Dsonar.login="$(SonarToken)"-Dsonar.host.url="$(SonarURL)" -Dsonar.sources="."
+  displayName: 'Run scanner'
+
+- script: sonar-scanner
+  displayName: 'Validate pull requests with SonarQube'
+
+- script: echo Archive the results
+  displayName: 'Archive results'
+  continueOnError: true
+
+- task: PublishTestResults@2
+  displayName: 'Publish Test Results'
+  inputs:
+    testRunner: 'JUnit'
+    testResultsFiles: '**/junit*.xml'
+    mergeTestResults: true
+    failTaskOnFailedTests: true
+    publishRunAttachments: true
+
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish Code Coverage Results'
+  inputs:
+    codeCoverageTool: 'Cobertura'
+    reportDirectory: './reports/coverage'
+    failIfCoverageEmpty: true
+
+
+
+
+
+
 - task: DotNetCoreCLI@2
   displayName: 'Publish the project - $(buildConfiguration)'
   inputs:
