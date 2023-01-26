@@ -45,6 +45,13 @@ steps:
     arguments: '--no-restore --configuration $(buildConfiguration)'
     projects: '**/*.csproj'
 
+- task: SonarQubePrepare@5
+  inputs:
+    SonarQube: 'Sonar On Azure'
+    scannerMode: 'MSBuild'
+    projectKey: 'SonarTest'
+    projectName: 'SonarTest'
+    
 - task: DotNetCoreCLI@2
   displayName: 'Publish the project - $(buildConfiguration)'
   inputs:
