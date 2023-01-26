@@ -17,6 +17,14 @@ steps:
   inputs:
     version: '$(dotnetSdkVersion)'
 
+
+- task: SonarQubePrepare@5
+  inputs:
+    SonarQube: 'Sonar On Azure'
+    scannerMode: 'MSBuild'
+    projectKey: 'SonarTest'
+    projectName: 'SonarTest'
+    
 - task: Npm@1
   displayName: 'Run npm install'
   inputs:
@@ -44,14 +52,13 @@ steps:
     command: 'build'
     arguments: '--no-restore --configuration $(buildConfiguration)'
     projects: '**/*.csproj'
-
-- task: SonarQubePrepare@5
-  inputs:
-    SonarQube: 'Sonar On Azure'
-    scannerMode: 'MSBuild'
-    projectKey: 'SonarTest'
-    projectName: 'SonarTest'
     
+- task: SonarQubeAnalyze@5
+
+- task: SonarQubePublish@5
+  inputs:
+    pollingTimeoutSec: '300'
+
 - task: DotNetCoreCLI@2
   displayName: 'Publish the project - $(buildConfiguration)'
   inputs:
