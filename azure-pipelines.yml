@@ -24,6 +24,9 @@ steps:
     scannerMode: 'MSBuild'
     projectKey: 'SonarTest'
     projectName: 'SonarTest'
+    extraProperties: |
+      sonar.branch.name=main
+
     
 - task: Npm@1
   displayName: 'Run npm install'
